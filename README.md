@@ -1,0 +1,1 @@
+Property listing platform where owners can post properties and users can send enquiries. Admin approves listings.
