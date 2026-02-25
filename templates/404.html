@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Page Not Found · PropList{% endblock %}
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div style="text-align: center;">
+        <div style="font-size: 6rem; margin-bottom: 1rem;">🏚️</div>
+        <h1 style="font-size: 3rem; font-weight: 800; letter-spacing: -2px; color: var(--text-muted);">404</h1>
+        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Property not found</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">This listing may have been removed or never existed.
+        </p>
+        <a href="/properties" class="btn btn-primary">Browse Listings</a>
+    </div>
+</div>
+{% endblock %}

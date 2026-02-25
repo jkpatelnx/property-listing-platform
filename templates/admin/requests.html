@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+{% block title %}Enquiries · Admin · PropList{% endblock %}
+{% block topbar_title %}Contact Enquiries{% endblock %}
+
+{% block content %}
+<div style="margin-bottom:1.5rem;">
+    <p style="color:var(--text-secondary); font-size:0.875rem;">
+        {{ contact_requests|length }} total enquir{{ 'y' if contact_requests|length == 1 else 'ies' }}
+        &nbsp;·&nbsp;
+        {{ contact_requests|selectattr('status', 'equalto', 'pending')|list|length }} pending
+    </p>
+</div>
+
+<div class="admin-card">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Property</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Message</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in contact_requests %}
+            <tr>
+                <td style="color:var(--text-muted); font-size:0.78rem; white-space:nowrap;">
+                    {{ req.created_at.strftime('%b %d, %Y') }}<br>
+                    <span style="font-size:0.72rem;">{{ req.created_at.strftime('%H:%M') }}</span>
+                </td>
+                <td>
+                    <a href="/properties/{{ req.property_id }}" target="_blank"
+                        style="color:var(--primary-light); font-size:0.825rem;">
+                        {% if req.property %}{{ req.property.title[:30] }}{% else %}—{% endif %}
+                    </a>
+                </td>
+                <td style="font-weight:500;">{{ req.name }}</td>
+                <td style="color:var(--text-secondary); font-size:0.82rem;">{{ req.email }}</td>
+                <td style="color:var(--text-secondary); font-size:0.82rem; max-width:220px;">
+                    {{ req.message[:80] }}{% if req.message|length > 80 %}…{% endif %}
+                </td>
+                <td>
+                    <span class="status-badge status-{{ req.status }}">{{ req.status }}</span>
+                </td>
+                <td>
+                    {% if req.status == 'pending' %}
+                    <form method="post" action="/admin/requests/{{ req.id }}/handle">
+                        <button type="submit" class="btn btn-primary btn-sm">✓ Mark Handled</button>
+                    </form>
+                    {% else %}
+                    <form method="post" action="/admin/requests/{{ req.id }}/reopen">
+                        <button type="submit" class="btn btn-secondary btn-sm">↩ Reopen</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align:center; color:var(--text-muted); padding:3rem;">
+                    No enquiries received yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

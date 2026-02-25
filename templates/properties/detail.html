@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+{% block title %}{{ property.title }} · PropList{% endblock %}
+{% block description %}{{ property.description[:120] if property.description else property.title ~ ' in ' ~
+property.city ~ '. View photos and contact owner.' }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav style="margin-bottom:1.5rem; font-size:0.85rem; color:var(--text-3);">
+        <a href="/properties" style="color:var(--text-3);">← Back to listings</a>
+        &nbsp;/&nbsp; {{ property.city }} &nbsp;/&nbsp; {{ property.property_type | title }}
+    </nav>
+
+    <div class="detail-layout">
+
+        <!-- LEFT COLUMN -->
+        <div>
+
+            <!-- ── Image Gallery ─────────────────────────────────── -->
+            {% if property.images %}
+            <div class="gallery-container">
+                <!-- Main Image -->
+                <div class="gallery-main" id="gallery-main" onclick="openLightbox(currentIndex)">
+                    <img id="gallery-main-img" src="/static/uploads/{{ property.images[0].filename }}"
+                        alt="{{ property.images[0].label }}" />
+                    <div class="gallery-label-overlay">
+                        <span class="gallery-label-badge" id="gallery-label-text">{{ property.images[0].label }}</span>
+                        <span class="gallery-counter" id="gallery-counter">1 / {{ property.images|length }}</span>
+                    </div>
+                    {% if property.images|length > 1 %}
+                    <button class="gallery-nav gallery-nav-prev"
+                        onclick="event.stopPropagation(); changeImage(-1)">‹</button>
+                    <button class="gallery-nav gallery-nav-next"
+                        onclick="event.stopPropagation(); changeImage(1)">›</button>
+                    {% endif %}
+                </div>
+                <!-- Thumbnails -->
+                {% if property.images|length > 1 %}
+                <div class="gallery-thumbnails">
+                    {% for img in property.images %}
+                    <div class="gallery-thumb {% if loop.index0 == 0 %}active{% endif %}"
+                        onclick="setImage({{ loop.index0 }})" id="thumb-{{ loop.index0 }}">
+                        <img src="/static/uploads/{{ img.filename }}" alt="{{ img.label }}" loading="lazy" />
+                        <div class="gallery-thumb-label">{{ img.label }}</div>
+                    </div>
+                    {% endfor %}
+                    <!-- Empty placeholder slots -->
+                    {% for i in range(property.images|length, 6) %}
+                    <div class="gallery-thumb"
+                        style="opacity:0.2; cursor:default; display:flex; align-items:center; justify-content:center; color:var(--text-4); font-size:1.25rem;">
+                        📷
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="gallery-empty">
+                {% if property.property_type == 'house' %}🏡{% elif property.property_type == 'villa' %}🏘️{% elif
+                property.property_type == 'plot' %}🌳{% elif property.property_type == 'commercial' %}🏢{% else %}🏠{%
+                endif %}
+            </div>
+            {% endif %}
+
+            <!-- ── Property Info ──────────────────────────────────── -->
+            <div>
+                <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+                    <span class="badge badge-primary">{{ property.property_type | title }}</span>
+                    <span class="badge badge-success">✓ Verified Listing</span>
+                    {% if property.images|length >= 5 %}
+                    <span class="badge badge-gold">⭐ Featured</span>
+                    {% endif %}
+                </div>
+                <h1 class="detail-title">{{ property.title }}</h1>
+                <div class="detail-price">
+                    ₹{{ "{:,.0f}".format(property.price) }}
+                    <span class="detail-price-note"> onwards</span>
+                </div>
+
+                <div class="detail-meta">
+                    <span>📍 {{ property.city }}</span>
+                    {% if property.bedrooms > 0 %}<span>🛏 {{ property.bedrooms }} Bedrooms</span>{% endif %}
+                    {% if property.bathrooms > 0 %}<span>🚿 {{ property.bathrooms }} Bathrooms</span>{% endif %}
+                    <span>🏷 {{ property.property_type | title }}</span>
+                </div>
+
+                <p style="color:var(--text-2); font-size:0.875rem; margin-bottom:0.5rem;">📌 {{ property.address }}</p>
+
+                {% if property.description %}
+                <div class="detail-description">
+                    <h2>About This Property</h2>
+                    <p>{{ property.description }}</p>
+                </div>
+                {% endif %}
+
+                <!-- ── PropList Trust ── -->
+                <div
+                    style="background:var(--bg-2); border:1px solid var(--border); border-radius:var(--r-lg); padding:1.25rem; margin:1.5rem 0;">
+                    <div
+                        style="font-size:0.8rem; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:0.75rem;">
+                        Why PropList?</div>
+                    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:1rem;">
+                        <div style="text-align:center;">
+                            <div style="font-size:1.5rem; margin-bottom:0.25rem;">✓</div>
+                            <div style="font-size:0.78rem; color:var(--text-2); font-weight:600;">Verified</div>
+                            <div style="font-size:0.7rem; color:var(--text-3);">100% authentic listing</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:1.5rem; margin-bottom:0.25rem;">💰</div>
+                            <div style="font-size:0.78rem; color:var(--text-2); font-weight:600;">Zero Brokerage</div>
+                            <div style="font-size:0.7rem; color:var(--text-3);">No hidden charges</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:1.5rem; margin-bottom:0.25rem;">🔒</div>
+                            <div style="font-size:0.78rem; color:var(--text-2); font-weight:600;">Safe & Secure</div>
+                            <div style="font-size:0.7rem; color:var(--text-3);">Encrypted data</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Enquiry Form ──────────────────────────────────── -->
+                <div class="enquiry-section">
+                    <h2>📬 Get In Touch</h2>
+                    <p>Interested in this property? Send a message and we'll connect you with the owner.</p>
+
+                    {% if request.query_params.get('success') %}
+                    <div class="alert alert-success">✅ Your enquiry has been sent successfully! The owner will contact
+                        you soon.</div>
+                    {% endif %}
+
+                    {% if current_user %}
+                    <form method="post" action="/properties/{{ property.id }}/contact">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="req_name">Your Name</label>
+                                <input type="text" id="req_name" name="name" class="form-input"
+                                    value="{{ current_user.full_name }}" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="req_email">Email</label>
+                                <input type="email" id="req_email" name="email" class="form-input"
+                                    value="{{ current_user.email }}" required />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="message">Message</label>
+                            <textarea id="message" name="message" class="form-textarea" required
+                                placeholder="I'm interested in this property. Please share more details, pricing options, and availability for a site visit..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg" style="width:100%;">Send Enquiry →</button>
+                    </form>
+                    {% else %}
+                    <div style="text-align:center; padding:1.5rem; background:var(--bg-3); border-radius:var(--r-lg);">
+                        <p style="color:var(--text-2); margin-bottom:1.25rem;">Sign in to contact the owner of this
+                            property.</p>
+                        <div style="display:flex; gap:0.75rem; justify-content:center;">
+                            <a href="/login" class="btn btn-primary">Login</a>
+                            <a href="/register" class="btn btn-outline">Register Free</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div><!-- end left col -->
+
+        <!-- RIGHT COLUMN / SIDEBAR -->
+        <div class="detail-sidebar">
+            <h3>Property Details</h3>
+            <div class="info-row"><span class="label">Type</span><span class="value">{{ property.property_type | title
+                    }}</span></div>
+            <div class="info-row"><span class="label">City</span><span class="value">{{ property.city }}</span></div>
+            {% if property.bedrooms > 0 %}<div class="info-row"><span class="label">Bedrooms</span><span
+                    class="value">{{ property.bedrooms }} BHK</span></div>{% endif %}
+            {% if property.bathrooms > 0 %}<div class="info-row"><span class="label">Bathrooms</span><span
+                    class="value">{{ property.bathrooms }}</span></div>{% endif %}
+            <div class="info-row"><span class="label">Price</span><span class="value"
+                    style="color:var(--brand-light);">₹{{ "{:,.0f}".format(property.price) }}</span></div>
+            <div class="info-row"><span class="label">Photos</span><span class="value">{{ property.images|length if
+                    property.images else '0' }} / 6</span></div>
+            <div class="info-row"><span class="label">Listed</span><span class="value">{{
+                    property.created_at.strftime('%b %d, %Y') }}</span></div>
+
+            <div class="proplist-trust">
+                <span style="font-size:1rem;">✓</span>
+                <div>
+                    <div style="font-weight:700; font-size:0.8rem;">PropList Verified</div>
+                    <div style="font-size:0.72rem; opacity:0.8;">Listing authenticity confirmed</div>
+                </div>
+            </div>
+
+            {% if current_user %}
+            {% if current_user.id == property.owner_id %}
+            <div class="owner-actions" style="margin-top:1.25rem;">
+                <p style="font-size:0.75rem; color:var(--text-3); margin-bottom:0.25rem;">You own this listing</p>
+                <a href="/properties/{{ property.id }}/edit" class="btn btn-outline btn-full btn-sm">✏️ Edit Listing</a>
+                <form method="post" action="/properties/{{ property.id }}/delete"
+                    onsubmit="return confirm('Permanently delete this listing?')">
+                    <button type="submit" class="btn btn-danger btn-full btn-sm">🗑 Delete Listing</button>
+                </form>
+            </div>
+            {% elif current_user.is_admin %}
+            <div class="owner-actions" style="margin-top:1.25rem;">
+                <p style="font-size:0.75rem; color:#fcd34d; margin-bottom:0.25rem;">Admin Controls</p>
+                <form method="post" action="/admin/properties/{{ property.id }}/delete"
+                    onsubmit="return confirm('Delete as admin?')">
+                    <button type="submit" class="btn btn-danger btn-full btn-sm">🗑 Delete (Admin)</button>
+                </form>
+            </div>
+            {% endif %}
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<!-- ── Lightbox ── -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <button class="lightbox-nav-btn" id="lightbox-prev" onclick="event.stopPropagation(); lightboxNav(-1)">‹</button>
+    <img class="lightbox-img" id="lightbox-img" src="" alt="" onclick="event.stopPropagation()" />
+    <button class="lightbox-nav-btn" id="lightbox-next" onclick="event.stopPropagation(); lightboxNav(1)">›</button>
+    <div class="lightbox-label" id="lightbox-label"></div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const images = [
+        {% for img in property.images %}
+    { src: "/static/uploads/{{ img.filename }}", label: "{{ img.label }}" },
+    {% endfor %}
+];
+    let currentIndex = 0;
+
+    function setImage(idx) {
+        if (!images.length) return;
+        idx = (idx + images.length) % images.length;
+        currentIndex = idx;
+        document.getElementById('gallery-main-img').src = images[idx].src;
+        document.getElementById('gallery-main-img').alt = images[idx].label;
+        document.getElementById('gallery-label-text').textContent = images[idx].label;
+        document.getElementById('gallery-counter').textContent = (idx + 1) + ' / ' + images.length;
+        document.querySelectorAll('.gallery-thumb').forEach((t, i) => t.classList.toggle('active', i === idx));
+    }
+
+    function changeImage(dir) { setImage(currentIndex + dir); }
+
+    function openLightbox(idx) {
+        if (!images.length) return;
+        currentIndex = idx;
+        document.getElementById('lightbox-img').src = images[idx].src;
+        document.getElementById('lightbox-label').textContent = images[idx].label + '  (' + (idx + 1) + '/' + images.length + ')';
+        document.getElementById('lightbox').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    function lightboxNav(dir) {
+        currentIndex = (currentIndex + dir + images.length) % images.length;
+        document.getElementById('lightbox-img').src = images[currentIndex].src;
+        document.getElementById('lightbox-label').textContent = images[currentIndex].label + '  (' + (currentIndex + 1) + '/' + images.length + ')';
+    }
+
+    document.addEventListener('keydown', e => {
+        if (document.getElementById('lightbox').classList.contains('open')) {
+            if (e.key === 'ArrowRight') lightboxNav(1);
+            if (e.key === 'ArrowLeft') lightboxNav(-1);
+            if (e.key === 'Escape') closeLightbox();
+        } else {
+            if (e.key === 'ArrowRight') changeImage(1);
+            if (e.key === 'ArrowLeft') changeImage(-1);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Properties for Sale & Rent in India · PropList{% endblock %}
+{% block description %}Browse verified properties for sale and rent in Mumbai, Bangalore, Delhi, Pune, Hyderabad and
+more. Real photos, zero brokerage.{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<div class="hero-section">
+    <h1>Find Your Dream Property</h1>
+    <p>Verified listings across 50+ cities. Real photos. Zero brokerage.</p>
+
+    <!-- Search / Filter Bar -->
+    <form method="get" action="/properties" style="max-width:780px; margin: 0 auto;">
+        <div class="filter-bar" style="border-radius:var(--r-xl); box-shadow: var(--shadow-brand);">
+            <div class="filter-group">
+                <label for="city">📍 City</label>
+                <input type="text" id="city" name="city" placeholder="e.g. Mumbai, Delhi..."
+                    value="{{ filters.city or '' }}" autocomplete="off" />
+            </div>
+            <div class="filter-group">
+                <label for="min_price">Min Price (₹)</label>
+                <input type="number" id="min_price" name="min_price" placeholder="Any"
+                    value="{{ filters.min_price or '' }}" min="0" />
+            </div>
+            <div class="filter-group">
+                <label for="max_price">Max Price (₹)</label>
+                <input type="number" id="max_price" name="max_price" placeholder="Any"
+                    value="{{ filters.max_price or '' }}" min="0" />
+            </div>
+            <div style="display:flex; gap:0.5rem; align-items:flex-end;">
+                <button type="submit" class="btn btn-primary" style="white-space:nowrap;">🔍 Search</button>
+                {% if filters.city or filters.min_price or filters.max_price or filters.property_type %}
+                <a href="/properties" class="btn btn-secondary">Clear</a>
+                {% endif %}
+            </div>
+        </div>
+    </form>
+
+    <div class="trust-bar">
+        <div class="trust-item">🏠 <strong>10,000+</strong> Listings</div>
+        <div class="trust-item">📍 <strong>50+</strong> Cities</div>
+        <div class="trust-item">✅ <strong>100%</strong> Verified</div>
+        <div class="trust-item">💰 Zero Brokerage</div>
+        <div class="trust-item">⭐ Trusted by <strong>1 Lakh+</strong> Users</div>
+    </div>
+</div>
+
+<div class="container">
+
+    <!-- Action Row -->
+    <div
+        style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.25rem;">
+
+        <!-- Type filter tabs -->
+        <div class="type-tabs">
+            <a href="/properties" class="type-tab {% if not filters.property_type %}active{% endif %}">All</a>
+            <a href="/properties?{% if filters.city %}city={{ filters.city }}&{% endif %}property_type=apartment"
+                class="type-tab {% if filters.property_type=='apartment' %}active{% endif %}">🏠 Apartments</a>
+            <a href="/properties?{% if filters.city %}city={{ filters.city }}&{% endif %}property_type=villa"
+                class="type-tab {% if filters.property_type=='villa' %}active{% endif %}">🏘️ Villas</a>
+            <a href="/properties?{% if filters.city %}city={{ filters.city }}&{% endif %}property_type=house"
+                class="type-tab {% if filters.property_type=='house' %}active{% endif %}">🏡 Houses</a>
+            <a href="/properties?{% if filters.city %}city={{ filters.city }}&{% endif %}property_type=plot"
+                class="type-tab {% if filters.property_type=='plot' %}active{% endif %}">🌳 Plots</a>
+            <a href="/properties?{% if filters.city %}city={{ filters.city }}&{% endif %}property_type=commercial"
+                class="type-tab {% if filters.property_type=='commercial' %}active{% endif %}">🏢 Commercial</a>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+            <span style="color:var(--text-3); font-size:0.85rem;">{{ properties|length }} propert{{ 'y' if
+                properties|length == 1 else 'ies' }}</span>
+            {% if current_user %}
+            <a href="/properties/create" class="btn btn-primary btn-sm">+ Add Listing</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Listings Grid -->
+    {% if properties %}
+    <div class="property-grid">
+        {% for prop in properties %}
+        {% set hero = prop.primary_image %}
+        <a href="/properties/{{ prop.id }}" style="text-decoration:none; color:inherit;">
+            <div class="property-card">
+                <div class="card-image">
+                    {% if hero %}
+                    <img src="/static/uploads/{{ hero }}" alt="{{ prop.title }}" loading="lazy" />
+                    {% else %}
+                    {% if prop.property_type == 'house' %}🏡
+                    {% elif prop.property_type == 'villa' %}🏘️
+                    {% elif prop.property_type == 'plot' %}🌳
+                    {% elif prop.property_type == 'commercial' %}🏢
+                    {% else %}🏠{% endif %}
+                    {% endif %}
+                    <span class="card-type-badge">{{ prop.property_type }}</span>
+                    {% if prop.images|length > 1 %}
+                    <span class="card-img-count">📷 {{ prop.images|length }}</span>
+                    {% endif %}
+                    <span class="card-verified">✓ Verified</span>
+                </div>
+                <div class="card-body">
+                    <div class="card-price">
+                        ₹{{ "{:,.0f}".format(prop.price) }}
+                        <span class="card-price-sub">onwards</span>
+                    </div>
+                    <div class="card-title">{{ prop.title }}</div>
+                    <div class="card-location">📍 {{ prop.city }}</div>
+                    <div class="card-meta">
+                        {% if prop.bedrooms > 0 %}<span>🛏 {{ prop.bedrooms }} Bed</span>{% endif %}
+                        {% if prop.bathrooms > 0 %}<span>🚿 {{ prop.bathrooms }} Bath</span>{% endif %}
+                        <span>🏷 {{ prop.property_type | title }}</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">🔍</div>
+        <h2>No properties found</h2>
+        <p style="margin-top: 0.5rem; color: var(--text-3);">Try adjusting your search or <a href="/properties">clear
+                filters</a>.</p>
+        {% if current_user %}
+        <a href="/properties/create" class="btn btn-primary btn-lg" style="margin-top: 2rem;">+ Add First Listing</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

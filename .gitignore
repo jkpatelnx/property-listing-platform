@@ -1,0 +1,28 @@
+# Environment variables & secrets
+.env
+.env.*
+!.env.example
+
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# User-uploaded property images
+static/uploads/*
+!static/uploads/.gitkeep
+
+# macOS specific files
+.DS_Store
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+
+# README.md
+README.md

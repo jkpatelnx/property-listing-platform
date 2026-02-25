@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}PropList — India's Premium Property Portal{% endblock %}</title>
+    <meta name="description"
+        content="{% block description %}Find verified properties for sale and rent across India. Browse 10,000+ listings with real photos.{% endblock %}" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/static/css/styles.css" />
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+    {% block navbar %}
+    <nav class="navbar">
+        <div class="nav-inner">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+                <a href="/" class="nav-brand">
+                    <div class="nav-brand-icon">🏠</div>
+                    Prop<span>List</span>
+                </a>
+                <span class="nav-tagline">India's Premium<br>Property Portal</span>
+            </div>
+            <div class="nav-links">
+                <a href="/properties">Browse</a>
+                {% if current_user %}
+                {% if current_user.is_admin %}
+                <a href="/admin">⚙️ Admin</a>
+                {% endif %}
+                <a href="/properties/create" class="btn btn-primary btn-sm">+ List Property</a>
+                <a href="/auth/logout" style="color: var(--text-3);">Logout</a>
+                {% else %}
+                <a href="/login">Login</a>
+                <a href="/register" class="btn btn-primary btn-sm">Register Free</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    {% endblock %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <a href="/" class="nav-brand">
+                    <div class="nav-brand-icon" style="width:28px; height:28px; font-size:0.9rem;">🏠</div>
+                    Prop<span>List</span>
+                </a>
+                <p>India's most trusted property portal. Find your dream home — apartments, villas, houses and more,
+                    verified and ready to move.</p>
+                <div class="footer-badges">
+                    <span class="footer-badge">✓ Verified Listings</span>
+                    <span class="footer-badge">✓ No Brokerage</span>
+                    <span class="footer-badge">✓ Trusted by 1L+ users</span>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Buy</h4>
+                <a href="/properties?property_type=apartment">Apartments</a>
+                <a href="/properties?property_type=villa">Villas</a>
+                <a href="/properties?property_type=house">Houses</a>
+                <a href="/properties?property_type=plot">Plots</a>
+                <a href="/properties?property_type=commercial">Commercial</a>
+            </div>
+            <div class="footer-links">
+                <h4>Cities</h4>
+                <a href="/properties?city=mumbai">Mumbai</a>
+                <a href="/properties?city=bangalore">Bangalore</a>
+                <a href="/properties?city=delhi">Delhi</a>
+                <a href="/properties?city=pune">Pune</a>
+                <a href="/properties?city=hyderabad">Hyderabad</a>
+            </div>
+            <div class="footer-links">
+                <h4>Company</h4>
+                <a href="#">About Us</a>
+                <a href="#">Careers</a>
+                <a href="#">Press</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>PropList</span>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

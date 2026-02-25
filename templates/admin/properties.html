@@ -1,0 +1,69 @@
+{% extends "admin/base.html" %}
+{% block title %}Properties · Admin · PropList{% endblock %}
+{% block topbar_title %}Manage Properties{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <p style="color:var(--text-secondary); font-size:0.875rem;">{{ properties|length }} total listing{{ 's' if
+        properties|length != 1 }}</p>
+</div>
+
+<div class="admin-card">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Title</th>
+                <th>City</th>
+                <th>Type</th>
+                <th>Price</th>
+                <th>Beds/Bath</th>
+                <th>Listed</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prop in properties %}
+            <tr>
+                <td>
+                    {% if prop.image_filename %}
+                    <img src="/static/uploads/{{ prop.image_filename }}" alt="{{ prop.title }}"
+                        style="width:60px; height:44px; object-fit:cover; border-radius:6px;" />
+                    {% else %}
+                    <div
+                        style="width:60px; height:44px; background:var(--bg); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+                        {% if prop.property_type == 'house' %}🏡
+                        {% elif prop.property_type == 'villa' %}🏘️
+                        {% elif prop.property_type == 'plot' %}🌳
+                        {% elif prop.property_type == 'commercial' %}🏢
+                        {% else %}🏠{% endif %}
+                    </div>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/properties/{{ prop.id }}" target="_blank"
+                        style="color:var(--primary-light); font-weight:500;">{{ prop.title[:40] }}</a>
+                </td>
+                <td style="color:var(--text-secondary);">{{ prop.city }}</td>
+                <td><span class="badge badge-primary">{{ prop.property_type }}</span></td>
+                <td style="color:var(--primary-light); font-weight:600;">₹{{ "{:,.0f}".format(prop.price) }}</td>
+                <td style="color:var(--text-secondary);">{{ prop.bedrooms }}🛏 {{ prop.bathrooms }}🚿</td>
+                <td style="color:var(--text-muted); font-size:0.8rem;">{{ prop.created_at.strftime('%b %d, %Y') }}</td>
+                <td>
+                    <form method="post" action="/admin/properties/{{ prop.id }}/delete"
+                        onsubmit="return confirm('Delete \'{{ prop.title }}\'? This cannot be undone.')">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align:center; color:var(--text-muted); padding:3rem;">
+                    No properties listed yet.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

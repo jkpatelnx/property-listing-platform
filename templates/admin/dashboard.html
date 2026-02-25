@@ -1,0 +1,103 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard · Admin · PropList{% endblock %}
+{% block topbar_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stat Cards -->
+<div class="stat-grid">
+    <div class="stat-card">
+        <div class="stat-icon">🏠</div>
+        <div class="stat-value" style="color: var(--primary-light);">{{ stats.total_properties }}</div>
+        <div class="stat-label">Total Listings</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">👤</div>
+        <div class="stat-value" style="color: var(--secondary);">{{ stats.total_users }}</div>
+        <div class="stat-label">Registered Users</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📬</div>
+        <div class="stat-value" style="color: #fcd34d;">{{ stats.pending_requests }}</div>
+        <div class="stat-label">Pending Enquiries</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div class="stat-value">{{ stats.total_requests }}</div>
+        <div class="stat-label">Total Enquiries</div>
+    </div>
+</div>
+
+<!-- Two-column layout -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+
+    <!-- Recent Properties -->
+    <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <h2 class="section-title" style="margin-bottom:0;">Recent Listings</h2>
+            <a href="/admin/properties" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        <div class="admin-card">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>City</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prop in recent_properties %}
+                    <tr>
+                        <td><a href="/properties/{{ prop.id }}" style="color:var(--primary-light);">{{ prop.title[:35]
+                                }}</a></td>
+                        <td style="color:var(--text-secondary);">{{ prop.city }}</td>
+                        <td style="color:var(--primary-light); font-weight:600;">₹{{ "{:,.0f}".format(prop.price) }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" style="color:var(--text-muted); text-align:center; padding:2rem;">No listings
+                            yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Enquiries -->
+    <div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <h2 class="section-title" style="margin-bottom:0;">Recent Enquiries</h2>
+            <a href="/admin/requests" class="btn btn-secondary btn-sm">View All</a>
+        </div>
+        <div class="admin-card">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in recent_requests %}
+                    <tr>
+                        <td>{{ req.name }}</td>
+                        <td style="color:var(--text-secondary); font-size:0.8rem;">{{ req.email }}</td>
+                        <td>
+                            <span class="status-badge status-{{ req.status }}">{{ req.status }}</span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" style="color:var(--text-muted); text-align:center; padding:2rem;">No enquiries
+                            yet</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
