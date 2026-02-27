@@ -25,6 +25,3 @@ static/uploads/*
 .vscode/
 .idea/
 *.swp
-
-# README.md
-README.md
