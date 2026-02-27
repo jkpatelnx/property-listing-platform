@@ -12,7 +12,7 @@ import uuid
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, text
+from sqlalchemy import select
 
 from database.session import AsyncSessionLocal
 from models.user import User
@@ -183,15 +183,13 @@ PROPERTIES = [
 async def seed():
     async with AsyncSessionLocal() as db:
 
-        # 1. Clear existing properties + images (clean slate)
-        print("🧹 Clearing old data...")
-        await db.execute(text("DELETE FROM contact_requests"))
-        await db.execute(text("DELETE FROM property_images"))
-        await db.execute(text("DELETE FROM properties"))
-        await db.execute(text("DELETE FROM users WHERE email != 'seed_placeholder'"))
-        await db.flush()
+        # Skip seeding if data already exists (protects real user data)
+        result = await db.execute(select(User))
+        if result.scalars().first() is not None:
+            print("⏭️  Data already exists — skipping seed.")
+            return
 
-        # 2. Admin user
+        # 1. Admin user
         admin = User(
             id=uuid.uuid4(),
             email=ADMIN_EMAIL,
@@ -204,7 +202,7 @@ async def seed():
         await db.refresh(admin)
         print(f"✅ Admin: {ADMIN_EMAIL} / {ADMIN_PASSWORD}")
 
-        # 3. Properties with images
+        # 2. Properties with images
         for data in PROPERTIES:
             images_spec = data.pop("images")
             prop = Property(
