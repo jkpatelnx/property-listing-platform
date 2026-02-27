@@ -1,0 +1,11 @@
+.git
+.gitignore
+
+docker/
+
+README.md
+setup.sh
+
+.env
+.env.*
+.env.example
